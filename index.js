@@ -24,16 +24,24 @@ mongoose.connection.on("disconnected", () => {
 });
 
 // middlewares
+// reach req firtstly arrive to user
 app.use(express.json());
 
-app.get("/users", (req, res) => {
-  res.send("HELLO First request");
-});
 app.use("/api/auth", authRoute);
 app.use("/api/users", usersRoute);
 app.use("/api/hotels", hotelsRoute);
 app.use("/api/rooms", roomsRoute);
 
+app.use((err, req, res, next) => {
+  const errorStatus = err.status || 500;
+  const errorMessage = err.message || "something went wrong";
+  return res.status(500).json({
+    success: false,
+    status: errorStatus,
+    message: errorMessage,
+    stack: err.stack,
+  });
+});
 app.listen(8800, () => {
   connect();
   console.log("connected to Backend!");
